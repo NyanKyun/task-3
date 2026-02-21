@@ -1,0 +1,77 @@
+export TURTLEBOT3_MODEL=waffle
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+ros2 launch turtlebot3_cartographer cartographer.launch.py use_sim_time:=True
+ros2 run turtlebot3_teleop teleop_keyboard
+ros2 run nav2_map_server map_saver_cli -f ~/sim_map
+
+//if acted weird : 
+ros2 launch slam_toolbox online_async_launch.py
+
+
+FORCE SHUTDOWN IF IT BECOMES PROBLEM STEP CAUSE IT NEEDS RESET
+# 1. Kill ROS nodes hard
+pkill -9 -f ros2
+pkill -9 -f gazebo
+pkill -9 -f nav2
+pkill -9 -f slam
+
+# 2. Reset discovery (very important)
+ros2 daemon stop
+ros2 daemon start
+
+# 3. Re-source cleanly
+source /opt/ros/humble/setup.bash
+
+
+Example of Good spawn : 
+nadiah@nadiah-ROG-Strix-G513IE-G513IE:~$ ros2 node list
+/amcl
+/behavior_server
+/bt_navigator
+/bt_navigator_navigate_through_poses_rclcpp_node
+/bt_navigator_navigate_to_pose_rclcpp_node
+/camera_driver
+/controller_server
+/gazebo
+/global_costmap/global_costmap
+/launch_ros_26127
+/lifecycle_manager_localization
+/lifecycle_manager_navigation
+/local_costmap/local_costmap
+/map_server
+/nav2_container
+/planner_server
+/robot_state_publisher
+/rviz2
+/rviz_navigation_dialog_action_client
+/smoother_server
+/transform_listener_impl_57cf6f9a3790
+/transform_listener_impl_70b2080035c0
+/transform_listener_impl_70b21800a870
+/transform_listener_impl_70b228002c60
+/transform_listener_impl_70b238003970
+/transform_listener_impl_70b2480077f0
+/turtlebot3_diff_drive
+/turtlebot3_imu
+/turtlebot3_joint_state
+/turtlebot3_laserscan
+/velocity_smoother
+/waypoint_follower
+
+
+IF ALL FAILS REBUILD WORKSPACE
+mkdir -p ~/turtlebot3_ws/src
+cd ~/turtlebot3_ws/src
+git clone -b humble https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
+git clone -b humble https://github.com/ROBOTIS-GIT/turtlebot3.git
+cd ~/turtlebot3_ws
+colcon build --symlink-install
+source /opt/ros/humble/setup.bash
+source ~/turtlebot3_ws/install/setup.bash
+ros2 launch turtlebot3_gazebo empty_world.launch.py
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py world:=<path-to-world-file>
+ros2 launch turtlebot3_cartographer cartographer.launch.py use_sim_time:=True
+ros2 run turtlebot3_teleop teleop_keyboard
+ros2 run nav2_map_server map_saver_cli -f ~/sim_map
+
